@@ -1,65 +1,65 @@
-# Système de Régulateur de Vitesse Adaptatif (ACC) - AUTOSAR
+# Adaptive Cruise Control (ACC) System - AUTOSAR
 
-Ce projet présente la conception et la simulation d'un **Adaptive Cruise Control (ACC)** utilisant l'architecture **AUTOSAR** sous MATLAB/Simulink. Le cœur du système repose sur une machine d'états **Stateflow** pour gérer la logique de décision.
+This project presents the design and simulation of an **Adaptive Cruise Control (ACC)** system using the **AUTOSAR** architecture within MATLAB/Simulink. The core decision logic is managed by a **Stateflow** state machine.
 
-## 📋 Description du Projet
-Le système ajuste automatiquement la vitesse du véhicule pour maintenir une distance de sécurité avec le véhicule précédent. Il opère selon deux modes principaux :
-1.  **Cruising Mode :** Maintien de la vitesse de consigne (route libre).
-2.  **Following Mode :** Adaptation de la vitesse pour suivre le véhicule précédent (présence d'obstacle).
+## 📋 Project Description
+The system automatically adjusts the vehicle's speed to maintain a safe distance from the preceding vehicle. It operates in two main modes:
+1.  **Cruising Mode:** Maintains the driver's set speed (free road).
+2.  **Following Mode:** Adapts speed to follow the preceding vehicle (obstacle detected).
 
-## 🛠️ Architecture Technique
-*   **Environnement :** MATLAB / Simulink R2024b
-*   **Logique de contrôle :** Stateflow (Machine d'états finis)
-*   **Standard :** AUTOSAR (Code Generation: `autosar.tlc`)
-*   **Interface :** Dashboard Simulink interactif
+## 🛠️ Technical Architecture
+*   **Environment:** MATLAB / Simulink R2024b
+*   **Control Logic:** Stateflow (Finite State Machine)
+*   **Standard:** AUTOSAR (Code Generation: `autosar.tlc`)
+*   **Interface:** Interactive Simulink Dashboard
 
-## 🧠 Logique de Contrôle (Stateflow)
-Le système est piloté par un diagramme d'états (`ACC_Logic`) comprenant trois états principaux :
+## 🧠 Control Logic (Stateflow)
+The system is driven by a state chart (`ACC_Logic`) comprising three main states:
 
-| État | Description | Actions Principales |
+| State | Description | Main Actions |
 | :--- | :--- | :--- |
-| **OFF** | Système désactivé | `Accel_Req = 0`, `Brake_Req = 0` |
-| **CRUISING** | Route dégagée | Régulation P-Control : `Accel_Req = (Set - Current) * 2` |
-| **FOLLOWING** | Obstacle détecté | Freinage actif : `Brake_Req = 1`, `Accel_Req = 0` |
+| **OFF** | System Deactivated | `Accel_Req = 0`, `Brake_Req = 0` |
+| **CRUISING** | Free Road | P-Control Regulation: `Accel_Req = (Set - Current) * 2` |
+| **FOLLOWING** | Obstacle Detected | Active Braking: `Brake_Req = 1`, `Accel_Req = 0` |
 
-### Conditions de transition (Logique d'hystérésis)
-*   **Activation :** `Switch_ACC == 1`
-*   **Détection Obstacle :** Passage en mode *Following* si `Radar_Dist < 50m`.
-*   **Retour en Cruising :** Passage en mode *Cruising* si `Radar_Dist > 60m` (Marge de sécurité pour éviter les oscillations).
+### Transition Conditions (Hysteresis Logic)
+*   **Activation:** `Switch_ACC == 1`
+*   **Obstacle Detection:** Switch to *Following* mode if `Radar_Dist < 50m`.
+*   **Return to Cruising:** Switch to *Cruising* mode if `Radar_Dist > 60m` (Safety margin to prevent oscillations).
 
-## 🎮 Simulation et Dashboard
-Un tableau de bord interactif a été intégré au modèle pour tester le système en temps réel sans écrire de code.
+## 🎮 Simulation and Dashboard
+An interactive dashboard has been integrated into the model to test the system in real-time without writing code.
 
-### Entrées (Commandes)
-*   **Switch ACC :** Interrupteur ON/OFF.
-*   **Set Speed (Knob) :** Vitesse souhaitée par le conducteur (0-200 km/h).
-*   **Current Speed (Knob) :** Vitesse actuelle du véhicule (simulation physique).
-*   **Radar Distance (Slider) :** Simulation de la distance avec l'obstacle (0-255 m).
+### Inputs (Controls)
+*   **Switch ACC:** ON/OFF Toggle.
+*   **Set Speed (Knob):** Driver's desired speed (0-200 km/h).
+*   **Current Speed (Knob):** Actual vehicle speed (physics simulation).
+*   **Radar Distance (Slider):** Simulated distance to the obstacle (0-255 m).
 
-### Sorties (Visualisation)
-*   **Jauge d'Accélération :** Visualise la demande de couple moteur (`Accel_Req`).
-*   **Lampe de Freinage :** S'allume (Rouge) en cas de freinage d'urgence.
-*   **État du Système (LED) :**
-    *   ⚪ Gris : OFF
-    *   🟢 Vert : Mode Cruising
-    *   🟠 Orange : Mode Following
+### Outputs (Visualization)
+*   **Acceleration Gauge:** Visualizes engine torque request (`Accel_Req`).
+*   **Brake Lamp:** Lights up (Red) during emergency braking.
+*   **System State (LED):**
+    *   ⚪ Grey: OFF
+    *   🟢 Green: Cruising Mode
+    *   🟠 Orange: Following Mode
 
-## 🚀 Guide d'installation et de test
-1.  Clonez ce dépôt :
+## 🚀 Installation and Testing Guide
+1.  Clone this repository:
     ```bash
     git clone https://github.com/wafaguizani/Adaptive-Cruise-Control.git
     ```
-2.  Ouvrez MATLAB et chargez le fichier **`ACC_System.slx`**.
-3.  Lancez la simulation (bouton **Run**).
-4.  Manipulez les boutons du Dashboard :
-    *   Activez le Switch.
-    *   Simulez un obstacle proche (< 50m) avec le slider "Radar" pour voir le système freiner.
-    *   Eloignez l'obstacle (> 60m) pour voir le système ré-accélérer.
+2.  Open MATLAB and load the file **`ACC_System.slx`**.
+3.  Start the simulation (Click **Run**).
+4.  Interact with the Dashboard controls:
+    *   Activate the Switch.
+    *   Simulate a close obstacle (< 50m) using the "Radar" slider to observe braking.
+    *   Move the obstacle away (> 60m) to see the system accelerate again.
 
-## 📄 Génération de Code (AUTOSAR)
-Le modèle est configuré pour la génération de code automatique conforme au standard AUTOSAR :
-*   **System Target File :** `autosar.tlc`
-*   Les composants logiciels (Software Components) et les interfaces sont mappés via l'outil **AUTOSAR Component Designer**.
+## 📄 Code Generation (AUTOSAR)
+The model is configured for automatic code generation compliant with the AUTOSAR standard:
+*   **System Target File:** `autosar.tlc`
+*   Software Components and Interfaces are mapped using the **AUTOSAR Component Designer**.
 
 ---
-*Projet réalisé par Wafa Guizani.*
+*Project created by Wafa Guizani.*
